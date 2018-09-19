@@ -117,7 +117,7 @@ public class Group {
 		if (nullCounter() != 10) {
 			for (int i = 0; i <= lastNoNullNumber(); i++) {
 				for (int j = i + 1; j <= lastNoNullNumber(); j++) {
-					if (students[j].getLastName().charAt(0) < students[i].getLastName().charAt(0)) {
+					if (students[j].getLastName().compareTo(students[i].getLastName()) < 0) {
 						Student temp = students[j];
 						students[j] = students[i];
 						students[i] = temp;
