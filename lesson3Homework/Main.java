@@ -1,5 +1,7 @@
 package lesson3Homework;
 
+import java.util.Arrays;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -13,20 +15,36 @@ public class Main {
 		
 		Group best = new Group("best");
 		
-		best.addStudent(vaska);
+		best.addStudentFromHuman(vaska);
 		System.out.println(best.studentList());
-		best.addStudent(nobody);
-		best.addStudent(sidor);
-		best.addStudent(olya);
+		best.addStudentFromHuman(nobody);
+		best.addStudentFromHuman(sidor);
+		best.addStudentFromHuman(olya);
 		System.out.println(best.studentList());
 		
-		best.addStudent(petya);
-		best.addStudent(petya);
+		best.addStudentFromHuman(petya);
+		best.addStudentFromHuman(petya);
 		System.out.println(best.studentList());
 		
 		best.deleteStudent(2);
 		System.out.println(best.studentList());
-		best.addStudent(ivan);
+		best.addStudentFromHuman(ivan);
+		System.out.println(best.studentList());
+		
+		best.addStudentInteract();
+		System.out.println(best.studentList());
+		
+		best.sortByLastname();
+		System.out.println(best.studentList());
+		System.out.println(best.recrutCount());
+		Student[] recruts = best.recruts();
+		for (int i = 0; i < recruts.length; i++) {
+			System.out.println("recrut " + i + ": " + recruts[i]);
+		}
+		
+		best.sortByAge();
+		System.out.println(best.studentList());
+		best.sortByName();
 		System.out.println(best.studentList());
 
 	}

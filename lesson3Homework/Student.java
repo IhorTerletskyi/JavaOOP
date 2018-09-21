@@ -1,9 +1,15 @@
 package lesson3Homework;
 
-public class Student extends Human {
+public class Student extends Human implements Comparable {
 	private String recordBookNumber;
 	private String groupNumber;
 	
+	public Student(String name, String lastName, int age, String recordBookNumber, String groupNumber) {
+		super(name, lastName, age);
+		this.recordBookNumber = recordBookNumber;
+		this.groupNumber = groupNumber;
+	}
+
 	public Student(Human human, String recordBookNumber, String groupNumber) {
 		super(human.getName(), human.getLastName(), human.getAge());
 		this.recordBookNumber = recordBookNumber;
@@ -12,6 +18,20 @@ public class Student extends Human {
 
 	public Student() {
 		super ();
+	}
+	
+
+	@Override
+	public int compareTo(Object another) {
+		Student anotherStudent = (Student) another;
+		if (this.getLastName().compareTo(anotherStudent.getLastName()) > 0) {
+			return 1;
+		}
+		if (this.getLastName().compareTo(anotherStudent.getLastName()) < 0) {
+			return -1;
+		}
+		
+		return 0;
 	}
 
 	@Override

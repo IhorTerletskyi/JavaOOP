@@ -1,6 +1,10 @@
 package lesson3Homework;
 
-public class Group {
+import java.util.Arrays;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class Group implements Voenkom{
 	private String name;
 	private Student[] students = new Student[10];
 
@@ -15,7 +19,7 @@ public class Group {
 
 	public boolean isGroupFull() {
 		boolean full = true;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < students.length; i++) {
 			if (this.students[i] == null) {
 				full = false;
 				break;
@@ -23,10 +27,10 @@ public class Group {
 		}
 		return full;
 	}
-	
+
 	public int freePlace() {
 		int free = 0;
-		for (int i = 0; i < 10; i ++) {
+		for (int i = 0; i < students.length; i++) {
 			if (students[i] == null) {
 				free = i;
 				break;
@@ -35,7 +39,63 @@ public class Group {
 		return free;
 	}
 
-	public void addStudent(Human human) {
+	public void addStudentInteract() {
+		String lastname = null;
+		String name = null;
+		int age = 0;
+
+		try {
+			if (isGroupFull()) {
+				throw new MoreTenStudensException();
+			}
+			Scanner scan = new Scanner(System.in);
+
+			for (;;) {
+				System.out.print("Enter new student lastname:");
+				lastname = scan.nextLine();
+				if (lastname.isEmpty()) {
+					System.out.println("Wrong lastname!");
+				} else {
+					break;
+				}
+			}
+			for (;;) {
+				System.out.print("Enter new student name:");
+				name = scan.nextLine();
+				if (name.isEmpty()) {
+					System.out.println("Wrong name!");
+				} else {
+					break;
+				}
+
+			}
+			for (;;) {
+				try {
+					System.out.print("Enter new student age:");
+					age = scan.nextInt();
+					if (age < 16) {
+						throw new SoYoungException();
+					}
+				} catch (InputMismatchException e) {
+					System.out.println("wrong age");
+					return;
+				} catch (SoYoungException e) {
+					System.out.println(e.toString());
+					return;
+				}
+				break;
+			}
+			int studentPlace = freePlace();
+			students[studentPlace] = new Student(name, lastname, age, this.getName(), this.getName());
+			String recordBook = students[studentPlace].getRecordBookNumber() + "-" + students[studentPlace].hashCode();
+			students[studentPlace].setRecordBookNumber(recordBook);
+
+		} catch (MoreTenStudensException e) {
+			System.out.println(e.toString());
+		}
+	}
+
+	public void addStudentFromHuman(Human human) {
 		try {
 			if (isGroupFull()) {
 				throw new MoreTenStudensException();
@@ -46,9 +106,9 @@ public class Group {
 			if (human.getAge() < 16) {
 				throw new SoYoungException();
 			}
-			String recordBook = this.name + "-" + freePlace();
+			String recordBook = this.name + "-" + human.hashCode();
 			students[freePlace()] = new Student(human, recordBook, this.name);
-			
+
 		} catch (MoreTenStudensException e) {
 			System.out.println(e.toString());
 		} catch (NoHumanNameException e) {
@@ -58,9 +118,9 @@ public class Group {
 		}
 
 	}
-	
+
 	public void deleteStudent(int number) {
-		if (number < 0 || number > 9) {
+		if (number < 0 || number > (students.length - 1)) {
 			System.out.println("Number error");
 		} else {
 			if (students[number] == null) {
@@ -70,10 +130,10 @@ public class Group {
 			}
 		}
 	}
-	
+
 	public String searchStudent(String lastname) {
 		String searchResult = "No student found";
-		for (int i = 0; i < 10; i ++) {
+		for (int i = 0; i < students.length; i++) {
 			if (lastname.equalsIgnoreCase(students[i].getLastName())) {
 				searchResult = students[i].toString();
 				break;
@@ -81,30 +141,30 @@ public class Group {
 		}
 		return searchResult;
 	}
-	
+
 	private int lastNoNullNumber() {
 		int last = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < students.length; i++) {
 			if (students[i] != null) {
 				last = i;
 			}
 		}
 		return last;
 	}
-	
+
 	private int nullCounter() {
 		int nullCounter = 0;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < students.length; i++) {
 			if (students[i] == null) {
 				nullCounter++;
-			}			
+			}
 		}
 		return nullCounter;
 	}
 	
-	public void sortByLastname() {		
-		for (int i = 0; i < 10; i++) {
-			 if ((nullCounter() != 10) && (lastNoNullNumber() != 9 - nullCounter())) {
+	public void nullToEnd() {
+		for (int i = 0; i < students.length; i++) {
+			if ((nullCounter() != students.length) && (lastNoNullNumber() != (students.length - 1 - nullCounter()))) {
 				if (students[i] == null) {
 					students[i] = students[lastNoNullNumber()];
 					students[lastNoNullNumber()] = null;
@@ -113,35 +173,79 @@ public class Group {
 				break;
 			}
 		}
-		
-		if (nullCounter() != 10) {
-			for (int i = 0; i <= lastNoNullNumber(); i++) {
-				for (int j = i + 1; j <= lastNoNullNumber(); j++) {
-					if (students[j].getLastName().compareTo(students[i].getLastName()) < 0) {
-						Student temp = students[j];
-						students[j] = students[i];
-						students[i] = temp;
-					}
-				}
-			}
-		}
+	}
+
+	public void sortByLastname() {
+		nullToEnd();
+		Arrays.sort(students, 0, lastNoNullNumber() + 1);
 	}
 	
+	public void sortByAge() {
+		Arrays.sort(students, (first, second) -> NullCheck.check(first, second)!=NullCheck.NOT_NULL?NullCheck.check(first, second):
+			first.getAge()-second.getAge());
+	}
+	
+	public void sortByName() {
+		Arrays.sort(students, (first, second) -> NullCheck.check(first, second)!=NullCheck.NOT_NULL?NullCheck.check(first, second):
+			first.getName().compareTo(second.getName()));
+	}
+
 	public String studentList() {
 		StringBuilder sb = new StringBuilder();
-		sortByLastname();
 		
-		if (nullCounter() == 10) {
+		if (nullCounter() == students.length) {
 			sb.append("Group is empty");
 		} else {
 			for (int i = 0; i <= lastNoNullNumber(); i++) {
-				sb.append(i);
-				sb.append(students[i].toString());
-				sb.append(System.lineSeparator());
+				if (students[i] != null) {
+					sb.append(i + ".");
+					sb.append(students[i].toString());
+					sb.append(System.lineSeparator());
+				}
 			}
 			sb.append("free places = " + nullCounter());
 		}
 		return sb.toString();
+	}
+	
+	
+
+	@Override
+	public boolean isRecrut(Student student) {
+		if (student != null && student.getAge() > 19 && student.getAge() <29) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public int recrutCount() {
+		int total = 0;
+		if (nullCounter() == students.length) {
+			return total;
+		}
+		for (int i = 0; i < students.length; i++) {
+			if (isRecrut(students[i])) {
+				total++;
+			}
+		}
+		return total;
+	}
+
+	@Override
+	public Student[] recruts() {
+		if (recrutCount() != 0) {
+			Student[] recruts = new Student[recrutCount()];
+			int counter = 0;
+			for (int i = 0; i < students.length; i++) {
+				if (isRecrut(students[i])) {
+					recruts[counter] = students[i];
+					counter++;
+				}
+			}
+			return recruts;
+		}
+		return null;
 	}
 
 	public String getName() {
@@ -151,7 +255,5 @@ public class Group {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
 
 }
