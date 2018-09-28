@@ -26,6 +26,13 @@ public class Main {
 		} else {
 			System.out.println("Not files found");
 		}
+		
+		File fileOne = new File("D:/java_work/Test_folder_from/Test1.txt");
+		File fileTwo = new File("D:/java_work/Test_folder_from/Test2.txt");
+		File fileNew = new File(folderCopyTo + "TestNew.txt");
+		
+		CompositeFiles compose = new CompositeFiles(fileOne, fileTwo, fileNew);
+		compose.composite();
 
 	}
 

@@ -1,10 +1,9 @@
 package lesson5Homework;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Scanner;
 
 public class CompositeFiles {
 	private File fileOne;
@@ -18,34 +17,36 @@ public class CompositeFiles {
 		this.fileNew = fileNew;
 	}
 
-	public String fileToString(File file) throws IOException {
+	public String[] fileToStringArray(File file) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		try (BufferedReader read = new BufferedReader(new FileReader(fileOne))) {
-			String readString;
-			for (; (readString = read.readLine()) != null;) {
-				sb.append(readString);
+		try (Scanner scan = new Scanner(file)) {
+			for (; scan.hasNextLine();) {
+				sb.append(scan.nextLine());
+				sb.append(" ");
 			}
 		} catch (IOException e) {
 			System.out.println("Error!");
 		}
-		return sb.toString();
+		return sb.toString().split(" ");
 	}
 
-	public static void composite() {
-		String[] wordsFileOne = new String(fileToString(fileOne)).split(" ");
-		String[] wordsFileTwo = new String(fileToString(fileTwo)).split(" ");
+	public void composite() {
+		String[] wordsFileOne;
+		String[] wordsFileTwo;
 
-		for (int i = 0; i < wordsFileOne.length; i++) {
-			for (int j = 0; j < wordsFileTwo.length; j++) {
-				try (BufferedWriter write = new BufferedWriter(new FileWriter(fileNew), true)) {
+		try (PrintWriter write = new PrintWriter(fileNew)) {
+			wordsFileOne = fileToStringArray(fileOne);
+			wordsFileTwo = fileToStringArray(fileTwo);
+
+			for (int i = 0; i < wordsFileOne.length; i++) {
+				for (int j = 0; j < wordsFileTwo.length; j++) {
 					if (wordsFileOne[i].equalsIgnoreCase(wordsFileTwo[j])) {
-						write.write(wordsFileOne[j]);
+						write.println(wordsFileOne[i] + " ");
 					}
-
-				} catch (IOException e) {
-					System.out.println("Error!");
 				}
 			}
+		} catch (IOException e) {
+			System.out.println("Error!");
 		}
 
 	}
