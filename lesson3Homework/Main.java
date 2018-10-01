@@ -1,5 +1,6 @@
 package lesson3Homework;
 
+import java.io.File;
 import java.util.Arrays;
 
 public class Main {
@@ -46,6 +47,16 @@ public class Main {
 		System.out.println(best.studentList());
 		best.sortByName();
 		System.out.println(best.studentList());
+		
+		String pathName = "D:/java_work/Test_folder_to";
+		best.saveToFile(pathName);
+		
+		System.out.println("New Groupe");
+		File fileFrom = new File (pathName + "/best.txt");
+		Group lala = new Group("lala");
+		lala = Group.groupFromFile (fileFrom, "lala");
+		System.out.println(lala.studentList());
+		
 
 	}
 

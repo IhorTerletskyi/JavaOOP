@@ -1,10 +1,13 @@
 package lesson3Homework;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Group implements Voenkom{
+public class Group implements Voenkom {
 	private String name;
 	private Student[] students = new Student[10];
 
@@ -39,6 +42,46 @@ public class Group implements Voenkom{
 		return free;
 	}
 
+	public String stringParametrEnter(String parameterName) {
+		String stringParameter = null;
+		Scanner scan = new Scanner(System.in);
+
+		for (;;) {
+			System.out.printf("Enter new student %s:", parameterName);
+			stringParameter = scan.nextLine();
+			if (stringParameter.isEmpty()) {
+				System.out.printf("Wrong %c!", parameterName);
+				System.out.println();
+			} else {
+				break;
+			}
+		}
+		return stringParameter;
+	}
+
+	public int intParametrEnter(String parameterName) {
+		int intParameter = 0;
+		Scanner scan = new Scanner(System.in);
+
+		for (;;) {
+			try {
+				System.out.printf("Enter new student %s:", parameterName);
+				intParameter = scan.nextInt();
+			} catch (InputMismatchException e) {
+				System.out.printf("Wrong %c!", parameterName);
+				scan.nextLine();
+				continue;
+			}
+			break;
+		}
+		return intParameter;
+	}
+	
+	public void addStudent(String name, String lastName, int age, String recordBookNumber, String groupNumber) {
+		int studentPlace = freePlace();
+		students[studentPlace] = new Student(name, lastName, age, recordBookNumber, groupNumber);
+	}
+
 	public void addStudentInteract() {
 		String lastname = null;
 		String name = null;
@@ -47,43 +90,18 @@ public class Group implements Voenkom{
 		try {
 			if (isGroupFull()) {
 				throw new MoreTenStudensException();
-			}
-			Scanner scan = new Scanner(System.in);
-
-			for (;;) {
-				System.out.print("Enter new student lastname:");
-				lastname = scan.nextLine();
-				if (lastname.isEmpty()) {
-					System.out.println("Wrong lastname!");
-				} else {
-					break;
-				}
-			}
-			for (;;) {
-				System.out.print("Enter new student name:");
-				name = scan.nextLine();
-				if (name.isEmpty()) {
-					System.out.println("Wrong name!");
-				} else {
-					break;
-				}
-
-			}
-			for (;;) {
+			} else {
 				try {
-					System.out.print("Enter new student age:");
-					age = scan.nextInt();
+					name = stringParametrEnter("name");
+					lastname = stringParametrEnter("lastname");
+					age = intParametrEnter("age");
 					if (age < 16) {
 						throw new SoYoungException();
 					}
-				} catch (InputMismatchException e) {
-					System.out.println("wrong age");
-					return;
 				} catch (SoYoungException e) {
 					System.out.println(e.toString());
 					return;
 				}
-				break;
 			}
 			int studentPlace = freePlace();
 			students[studentPlace] = new Student(name, lastname, age, this.getName(), this.getName());
@@ -161,7 +179,7 @@ public class Group implements Voenkom{
 		}
 		return nullCounter;
 	}
-	
+
 	public void nullToEnd() {
 		for (int i = 0; i < students.length; i++) {
 			if ((nullCounter() != students.length) && (lastNoNullNumber() != (students.length - 1 - nullCounter()))) {
@@ -179,20 +197,22 @@ public class Group implements Voenkom{
 		nullToEnd();
 		Arrays.sort(students, 0, lastNoNullNumber() + 1);
 	}
-	
+
 	public void sortByAge() {
-		Arrays.sort(students, (first, second) -> NullCheck.check(first, second)!=NullCheck.NOT_NULL?NullCheck.check(first, second):
-			first.getAge()-second.getAge());
+		Arrays.sort(students,
+				(first, second) -> NullCheck.check(first, second) != NullCheck.NOT_NULL ? NullCheck.check(first, second)
+						: first.getAge() - second.getAge());
 	}
-	
+
 	public void sortByName() {
-		Arrays.sort(students, (first, second) -> NullCheck.check(first, second)!=NullCheck.NOT_NULL?NullCheck.check(first, second):
-			first.getName().compareTo(second.getName()));
+		Arrays.sort(students,
+				(first, second) -> NullCheck.check(first, second) != NullCheck.NOT_NULL ? NullCheck.check(first, second)
+						: first.getName().compareTo(second.getName()));
 	}
 
 	public String studentList() {
 		StringBuilder sb = new StringBuilder();
-		
+
 		if (nullCounter() == students.length) {
 			sb.append("Group is empty");
 		} else {
@@ -207,12 +227,10 @@ public class Group implements Voenkom{
 		}
 		return sb.toString();
 	}
-	
-	
 
 	@Override
 	public boolean isRecrut(Student student) {
-		if (student != null && student.getAge() > 19 && student.getAge() <29) {
+		if (student != null && student.getAge() > 19 && student.getAge() < 29) {
 			return true;
 		}
 		return false;
@@ -246,6 +264,46 @@ public class Group implements Voenkom{
 			return recruts;
 		}
 		return null;
+	}
+	
+	public File saveToFile (String pathToSave) {
+		File file = new File(pathToSave + "/" + this.name + ".txt");		
+		try (PrintWriter write = new PrintWriter(file)) {
+//			write.println(students.length + ",");
+			if (nullCounter() != students.length) {
+				for (Student student:students) {
+					if (student != null) {
+						write.println(student.getName() + "," + student.getLastName() + "," + student.getAge() + "," + student.getRecordBookNumber());
+					}
+				}
+			} else {
+				System.out.println("Group is empty!");
+			}
+			
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		
+		return file;
+	}
+	
+	public static Group groupFromFile (File fileFrom, String newGroupName) {
+		Group newGrope = new Group(newGroupName);
+		try {
+			Scanner scan = new Scanner(fileFrom);
+			for (;scan.hasNextLine();) {
+				if (!newGrope.isGroupFull()) {
+					String [] studentInfo = scan.nextLine().split(",");
+					newGrope.addStudent(studentInfo[0], studentInfo[1], Integer.parseInt(studentInfo[2]), studentInfo[3], newGroupName);
+				} else {
+					System.out.println("Groupe is full!");
+				}
+			}
+			
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+		return newGrope;
 	}
 
 	public String getName() {
