@@ -1,6 +1,8 @@
 package lesson3Homework;
 
-public class Student extends Human implements Comparable {
+import java.io.Serializable;
+
+public class Student extends Human implements Comparable, Serializable {
 	private String recordBookNumber;
 	private String groupNumber;
 	

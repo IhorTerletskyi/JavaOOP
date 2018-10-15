@@ -3,11 +3,12 @@ package lesson3Homework;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Group implements Voenkom {
+public class Group implements Voenkom, Serializable {
 	private String name;
 	private Student[] students = new Student[10];
 
@@ -266,42 +267,65 @@ public class Group implements Voenkom {
 		return null;
 	}
 	
+//	public File saveToFile (String pathToSave) {
+//		File file = new File(pathToSave + "/" + this.name + ".txt");		
+//		try (PrintWriter write = new PrintWriter(file)) {
+//			if (nullCounter() != students.length) {
+//				for (Student student:students) {
+//					if (student != null) {
+//						write.println(student.getName() + "," + student.getLastName() + "," + student.getAge() + "," + student.getRecordBookNumber());
+//					}
+//				}
+//			} else {
+//				System.out.println("Group is empty!");
+//			}
+//			
+//		} catch (IOException e) {
+//			System.out.println(e);
+//		}
+//		
+//		return file;
+//	}
+//	
+//	public static Group groupFromFile (File fileFrom, String newGroupName) {
+//		Group newGrope = new Group(newGroupName);
+//		try {
+//			Scanner scan = new Scanner(fileFrom);
+//			for (;scan.hasNextLine();) {
+//				if (!newGrope.isGroupFull()) {
+//					String [] studentInfo = scan.nextLine().split(",");
+//					newGrope.addStudent(studentInfo[0], studentInfo[1], Integer.parseInt(studentInfo[2]), studentInfo[3], newGroupName);
+//				} else {
+//					System.out.println("Group is full!");
+//				}
+//			}
+//			
+//		} catch (IOException e) {
+//			System.out.println(e);
+//		}
+//		return newGrope;
+//	}
+	
 	public File saveToFile (String pathToSave) {
-		File file = new File(pathToSave + "/" + this.name + ".txt");		
-		try (PrintWriter write = new PrintWriter(file)) {
-//			write.println(students.length + ",");
-			if (nullCounter() != students.length) {
-				for (Student student:students) {
-					if (student != null) {
-						write.println(student.getName() + "," + student.getLastName() + "," + student.getAge() + "," + student.getRecordBookNumber());
-					}
-				}
-			} else {
-				System.out.println("Group is empty!");
-			}
-			
+		File file = new File(pathToSave + "/" + this.name + ".txt");
+		SerializationObect so = new SerializationObect();
+		try {
+			so.serializableToFile(this, file);
 		} catch (IOException e) {
-			System.out.println(e);
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
 		return file;
 	}
 	
-	public static Group groupFromFile (File fileFrom, String newGroupName) {
-		Group newGrope = new Group(newGroupName);
+	public static Group groupFromFile (File fileFrom) {
+		Group newGrope = null;
+		SerializationObect so = new SerializationObect();
 		try {
-			Scanner scan = new Scanner(fileFrom);
-			for (;scan.hasNextLine();) {
-				if (!newGrope.isGroupFull()) {
-					String [] studentInfo = scan.nextLine().split(",");
-					newGrope.addStudent(studentInfo[0], studentInfo[1], Integer.parseInt(studentInfo[2]), studentInfo[3], newGroupName);
-				} else {
-					System.out.println("Groupe is full!");
-				}
-			}
-			
-		} catch (IOException e) {
-			System.out.println(e);
+			newGrope = (Group)so.deserializationFromFile(fileFrom);
+		} catch (ClassNotFoundException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return newGrope;
 	}

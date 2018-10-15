@@ -53,8 +53,7 @@ public class Main {
 		
 		System.out.println("New Groupe");
 		File fileFrom = new File (pathName + "/best.txt");
-		Group lala = new Group("lala");
-		lala = Group.groupFromFile (fileFrom, "lala");
+		Group lala =  Group.groupFromFile (fileFrom);
 		System.out.println(lala.studentList());
 		
 
