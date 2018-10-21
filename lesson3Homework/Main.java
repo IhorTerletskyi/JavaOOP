@@ -35,7 +35,7 @@ public class Main {
 		best.addStudentInteract();
 		System.out.println(best.studentList());
 		
-		best.sortByLastname();
+//		best.sortByLastname();
 		System.out.println(best.studentList());
 		System.out.println(best.recrutCount());
 		Student[] recruts = best.recruts();
@@ -43,19 +43,19 @@ public class Main {
 			System.out.println("recrut " + i + ": " + recruts[i]);
 		}
 		
-		best.sortByAge();
-		System.out.println(best.studentList());
-		best.sortByName();
-		System.out.println(best.studentList());
-		
-		String pathName = "D:/java_work/Test_folder_to";
-		best.saveToFile(pathName);
-		
-		System.out.println("New Groupe");
-		File fileFrom = new File (pathName + "/best.txt");
-		Group lala =  Group.groupFromFile (fileFrom);
-		System.out.println(lala.studentList());
-		
+//		best.sortByAge();
+//		System.out.println(best.studentList());
+//		best.sortByName();
+//		System.out.println(best.studentList());
+//		
+//		String pathName = "D:/java_work/Test_folder_to";
+//		best.saveToFile(pathName);
+//		
+//		System.out.println("New Groupe");
+//		File fileFrom = new File (pathName + "/best.txt");
+//		Group lala =  Group.groupFromFile (fileFrom);
+//		System.out.println(lala.studentList());
+//		
 
 	}
 

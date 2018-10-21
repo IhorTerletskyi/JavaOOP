@@ -2,15 +2,16 @@ package lesson3Homework;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Group implements Voenkom, Serializable {
 	private String name;
-	private Student[] students = new Student[10];
+	private List<Student> students = new ArrayList<>();
 
 	public Group(String name) {
 		super();
@@ -19,28 +20,6 @@ public class Group implements Voenkom, Serializable {
 
 	public Group() {
 		super();
-	}
-
-	public boolean isGroupFull() {
-		boolean full = true;
-		for (int i = 0; i < students.length; i++) {
-			if (this.students[i] == null) {
-				full = false;
-				break;
-			}
-		}
-		return full;
-	}
-
-	public int freePlace() {
-		int free = 0;
-		for (int i = 0; i < students.length; i++) {
-			if (students[i] == null) {
-				free = i;
-				break;
-			}
-		}
-		return free;
 	}
 
 	public String stringParametrEnter(String parameterName) {
@@ -77,10 +56,9 @@ public class Group implements Voenkom, Serializable {
 		}
 		return intParameter;
 	}
-	
+
 	public void addStudent(String name, String lastName, int age, String recordBookNumber, String groupNumber) {
-		int studentPlace = freePlace();
-		students[studentPlace] = new Student(name, lastName, age, recordBookNumber, groupNumber);
+		students.add(new Student(name, lastName, age, recordBookNumber, groupNumber));
 	}
 
 	public void addStudentInteract() {
@@ -89,36 +67,23 @@ public class Group implements Voenkom, Serializable {
 		int age = 0;
 
 		try {
-			if (isGroupFull()) {
-				throw new MoreTenStudensException();
-			} else {
-				try {
-					name = stringParametrEnter("name");
-					lastname = stringParametrEnter("lastname");
-					age = intParametrEnter("age");
-					if (age < 16) {
-						throw new SoYoungException();
-					}
-				} catch (SoYoungException e) {
-					System.out.println(e.toString());
-					return;
-				}
+			name = stringParametrEnter("name");
+			lastname = stringParametrEnter("lastname");
+			age = intParametrEnter("age");
+			if (age < 16) {
+				throw new SoYoungException();
 			}
-			int studentPlace = freePlace();
-			students[studentPlace] = new Student(name, lastname, age, this.getName(), this.getName());
-			String recordBook = students[studentPlace].getRecordBookNumber() + "-" + students[studentPlace].hashCode();
-			students[studentPlace].setRecordBookNumber(recordBook);
-
-		} catch (MoreTenStudensException e) {
+		} catch (SoYoungException e) {
 			System.out.println(e.toString());
+			return;
 		}
+		Student stud = new Student(name, lastname, age, this.getName(), this.getName());
+		String recordBook = stud.getRecordBookNumber() + "-" + stud.hashCode();
+		students.add(stud);
 	}
 
 	public void addStudentFromHuman(Human human) {
 		try {
-			if (isGroupFull()) {
-				throw new MoreTenStudensException();
-			}
 			if (human.getName() == null || human.getLastName() == null) {
 				throw new NoHumanNameException();
 			}
@@ -126,10 +91,9 @@ public class Group implements Voenkom, Serializable {
 				throw new SoYoungException();
 			}
 			String recordBook = this.name + "-" + human.hashCode();
-			students[freePlace()] = new Student(human, recordBook, this.name);
+			Student stud = new Student(human, recordBook, this.name);
+			students.add(stud);
 
-		} catch (MoreTenStudensException e) {
-			System.out.println(e.toString());
 		} catch (NoHumanNameException e) {
 			System.out.println(e.toString());
 		} catch (SoYoungException e) {
@@ -139,92 +103,52 @@ public class Group implements Voenkom, Serializable {
 	}
 
 	public void deleteStudent(int number) {
-		if (number < 0 || number > (students.length - 1)) {
+		if (number < 0 || number > (students.size() - 1)) {
 			System.out.println("Number error");
-		} else {
-			if (students[number] == null) {
-				System.out.println("this place already free");
-			} else {
-				students[number] = null;
-			}
+			return;
 		}
+		students.remove(number);
 	}
 
 	public String searchStudent(String lastname) {
 		String searchResult = "No student found";
-		for (int i = 0; i < students.length; i++) {
-			if (lastname.equalsIgnoreCase(students[i].getLastName())) {
-				searchResult = students[i].toString();
+		for (int i = 0; i < students.size(); i++) {
+			if (lastname.equalsIgnoreCase(students.get(i).getLastName())) {
+				searchResult = students.get(i).toString();
 				break;
 			}
 		}
 		return searchResult;
 	}
 
-	private int lastNoNullNumber() {
-		int last = 0;
-		for (int i = 0; i < students.length; i++) {
-			if (students[i] != null) {
-				last = i;
-			}
-		}
-		return last;
-	}
-
-	private int nullCounter() {
-		int nullCounter = 0;
-		for (int i = 0; i < students.length; i++) {
-			if (students[i] == null) {
-				nullCounter++;
-			}
-		}
-		return nullCounter;
-	}
-
-	public void nullToEnd() {
-		for (int i = 0; i < students.length; i++) {
-			if ((nullCounter() != students.length) && (lastNoNullNumber() != (students.length - 1 - nullCounter()))) {
-				if (students[i] == null) {
-					students[i] = students[lastNoNullNumber()];
-					students[lastNoNullNumber()] = null;
-				}
-			} else {
-				break;
-			}
-		}
-	}
-
-	public void sortByLastname() {
-		nullToEnd();
-		Arrays.sort(students, 0, lastNoNullNumber() + 1);
-	}
-
-	public void sortByAge() {
-		Arrays.sort(students,
-				(first, second) -> NullCheck.check(first, second) != NullCheck.NOT_NULL ? NullCheck.check(first, second)
-						: first.getAge() - second.getAge());
-	}
-
-	public void sortByName() {
-		Arrays.sort(students,
-				(first, second) -> NullCheck.check(first, second) != NullCheck.NOT_NULL ? NullCheck.check(first, second)
-						: first.getName().compareTo(second.getName()));
-	}
+//	public void sortByLastname() {
+//		Arrays.sort(students);
+//	}
+//
+//	public void sortByAge() {
+//		Arrays.sort(students,
+//				(first, second) -> NullCheck.check(first, second) != NullCheck.NOT_NULL ? NullCheck.check(first, second)
+//						: first.getAge() - second.getAge());
+//	}
+//
+//	public void sortByName() {
+//		Arrays.sort(students,
+//				(first, second) -> NullCheck.check(first, second) != NullCheck.NOT_NULL ? NullCheck.check(first, second)
+//						: first.getName().compareTo(second.getName()));
+//	}
 
 	public String studentList() {
 		StringBuilder sb = new StringBuilder();
 
-		if (nullCounter() == students.length) {
+		if (students.size() == 0) {
 			sb.append("Group is empty");
 		} else {
-			for (int i = 0; i <= lastNoNullNumber(); i++) {
-				if (students[i] != null) {
-					sb.append(i + ".");
-					sb.append(students[i].toString());
-					sb.append(System.lineSeparator());
-				}
+			for (int i = 0; i < students.size(); i++) {
+				sb.append(i + ".");
+				sb.append(students.get(i).toString());
+				sb.append(System.lineSeparator());
+				
 			}
-			sb.append("free places = " + nullCounter());
 		}
 		return sb.toString();
 	}
@@ -240,11 +164,8 @@ public class Group implements Voenkom, Serializable {
 	@Override
 	public int recrutCount() {
 		int total = 0;
-		if (nullCounter() == students.length) {
-			return total;
-		}
-		for (int i = 0; i < students.length; i++) {
-			if (isRecrut(students[i])) {
+		for (int i = 0; i < students.size(); i++) {
+			if (isRecrut(students.get(i))) {
 				total++;
 			}
 		}
@@ -256,9 +177,9 @@ public class Group implements Voenkom, Serializable {
 		if (recrutCount() != 0) {
 			Student[] recruts = new Student[recrutCount()];
 			int counter = 0;
-			for (int i = 0; i < students.length; i++) {
-				if (isRecrut(students[i])) {
-					recruts[counter] = students[i];
+			for (int i = 0; i < students.size(); i++) {
+				if (isRecrut(students.get(i))) {
+					recruts[counter] = students.get(i);
 					counter++;
 				}
 			}
@@ -266,47 +187,8 @@ public class Group implements Voenkom, Serializable {
 		}
 		return null;
 	}
-	
-//	public File saveToFile (String pathToSave) {
-//		File file = new File(pathToSave + "/" + this.name + ".txt");		
-//		try (PrintWriter write = new PrintWriter(file)) {
-//			if (nullCounter() != students.length) {
-//				for (Student student:students) {
-//					if (student != null) {
-//						write.println(student.getName() + "," + student.getLastName() + "," + student.getAge() + "," + student.getRecordBookNumber());
-//					}
-//				}
-//			} else {
-//				System.out.println("Group is empty!");
-//			}
-//			
-//		} catch (IOException e) {
-//			System.out.println(e);
-//		}
-//		
-//		return file;
-//	}
-//	
-//	public static Group groupFromFile (File fileFrom, String newGroupName) {
-//		Group newGrope = new Group(newGroupName);
-//		try {
-//			Scanner scan = new Scanner(fileFrom);
-//			for (;scan.hasNextLine();) {
-//				if (!newGrope.isGroupFull()) {
-//					String [] studentInfo = scan.nextLine().split(",");
-//					newGrope.addStudent(studentInfo[0], studentInfo[1], Integer.parseInt(studentInfo[2]), studentInfo[3], newGroupName);
-//				} else {
-//					System.out.println("Group is full!");
-//				}
-//			}
-//			
-//		} catch (IOException e) {
-//			System.out.println(e);
-//		}
-//		return newGrope;
-//	}
-	
-	public File saveToFile (String pathToSave) {
+
+	public File saveToFile(String pathToSave) {
 		File file = new File(pathToSave + "/" + this.name + ".txt");
 		SerializationObect so = new SerializationObect();
 		try {
@@ -317,12 +199,12 @@ public class Group implements Voenkom, Serializable {
 		}
 		return file;
 	}
-	
-	public static Group groupFromFile (File fileFrom) {
+
+	public static Group groupFromFile(File fileFrom) {
 		Group newGrope = null;
 		SerializationObect so = new SerializationObect();
 		try {
-			newGrope = (Group)so.deserializationFromFile(fileFrom);
+			newGrope = (Group) so.deserializationFromFile(fileFrom);
 		} catch (ClassNotFoundException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
